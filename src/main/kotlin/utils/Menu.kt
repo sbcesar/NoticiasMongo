@@ -228,7 +228,8 @@ class Menu(
                     }
                 }
                 6 -> {
-                    noticiaController.listarUltimasNoticias()
+                    val noticias = noticiaController.listarUltimasNoticias()
+                    noticias.forEach { println("$it\n") }
                 }
                 7 -> {
                     println("Saliendo...")

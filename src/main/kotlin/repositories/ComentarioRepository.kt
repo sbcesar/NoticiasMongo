@@ -12,7 +12,7 @@ class ComentarioRepository(private val database: MongoDatabase) {
     fun listarComentariosPorNoticia(noticia: Noticia): List<Comentario> {
         val comentarioCollection = database.getCollection(collName, Comentario::class.java)
 
-        val filtro = Filters.eq("noticia_id", noticia._id)
+        val filtro = Filters.eq("noticia.titulo", noticia.titulo)
 
         val comentarios = comentarioCollection.find(filtro).toList()
 

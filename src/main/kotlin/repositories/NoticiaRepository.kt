@@ -28,7 +28,7 @@ class NoticiaRepository(private val database: MongoDatabase) {
     fun listarNoticiasPorUsuario(usuarioNick: String): List<Noticia> {
         val noticiaColeccion = database.getCollection(collName, Noticia::class.java)
 
-        val filtro = Filters.eq("autor", usuarioNick)
+        val filtro = Filters.eq("autor.apodo", usuarioNick)
 
         val noticias = noticiaColeccion.find(filtro).toList()
 
@@ -70,10 +70,12 @@ class NoticiaRepository(private val database: MongoDatabase) {
     fun listarUltimasNoticias(): List<Noticia> {
         val noticiasCollection = database.getCollection(collName, Noticia::class.java)
 
-        return noticiasCollection.find()
+        val noticias = noticiasCollection.find()
             .sort(Sorts.descending("fecha_publicacion"))
             .limit(10)
             .toList()
+
+        return noticias
     }
 
 }

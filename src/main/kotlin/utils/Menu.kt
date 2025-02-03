@@ -1,10 +1,15 @@
 package org.example.utils
 
+import org.bson.types.ObjectId
+import org.example.controller.ComentarioController
+import org.example.controller.NoticiaController
 import org.example.controller.UsuarioController
 import org.example.entity.Direccion
 import org.example.entity.Estado
+import org.example.entity.Noticia
+import java.util.*
 
-class Menu(private val usuarioController: UsuarioController) {
+class Menu(private val usuarioController: UsuarioController, private val noticiaController: NoticiaController, private val comentarioController: ComentarioController) {
 
     fun showAuthMenu() {
         var authSuccess = false
@@ -44,11 +49,34 @@ class Menu(private val usuarioController: UsuarioController) {
             print("Seleccione una opción: ")
 
             when (readlnOrNull()?.toIntOrNull()) {
-                1 -> {}
-                2 -> {}
-                3 -> {}
-                4 -> {}
-                5 -> {}
+                1 -> {
+                    println("Ingrese el título de la noticia:")
+                    val titulo = readlnOrNull().orEmpty()
+
+                    println("Ingrese el cuerpo de la noticia:")
+                    val cuerpo = readlnOrNull().orEmpty()
+
+                    println("Ingrese las etiquetas de la noticia (separadas por coma):")
+                    val etiquetas = readlnOrNull()?.split(",")?.map { it.trim() } ?: listOf()
+
+
+                }
+                2 -> {
+                    println("Ingrese el apodo del usuario para mostrar sus noticias:")
+                    val nick = readlnOrNull().orEmpty()
+                    noticiaController.listarNoticiasPorUsuario(nick)
+                }
+                3 -> {
+                    println("Ingrese el ID de la noticia para mostrar los comentarios:")
+                    val noticiaId = readlnOrNull().orEmpty()
+                    comentarioController.listarComentariosPorNoticia(noticiaId)
+                }
+                4 -> {
+                    println("Ingrese una lista de etiquetas separadas por coma:")
+                    val etiquetas = readlnOrNull()?.split(",")?.map { it.trim() }.orEmpty()
+                    noticiaController.buscarNoticiasPorEtiquetas(etiquetas)
+                }
+                5 -> {noticiaController.listarUltimasNoticias()}
                 6 -> {
                     println("Saliendo...")
                     bandera = false

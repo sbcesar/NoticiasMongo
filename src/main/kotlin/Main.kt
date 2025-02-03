@@ -3,23 +3,27 @@ package org.example
 import com.mongodb.client.MongoCollection
 import com.mongodb.client.model.Filters
 import org.example.config.DatabaseManager
-import org.example.entity.Cliente
+import org.example.controller.UsuarioController
 import org.example.entity.Direccion
 import org.example.entity.Estado
 import org.example.repositories.UsuarioRepository
+import org.example.services.UsuarioService
 import org.example.utils.Menu
 
 fun main() {
 
     val databaseManager = DatabaseManager()
-    val menu = Menu()
+
     val usuarioRepository = UsuarioRepository(databaseManager)
+    val usuarioService = UsuarioService(usuarioRepository)
+    val usuarioController = UsuarioController(usuarioService)
+
+    val menu = Menu(usuarioController)
+
 
     try {
         databaseManager.connect()
-        // menu.showMenu()
-        val direccion = Direccion("hola", "hola", "hola", "hola")
-        usuarioRepository.register("cesar@gmail.com", "cesar", "cemaik", Estado.INACTIVO, direccion, listOf("717707815"))
+        menu.showAuthMenu()
     }catch (e: Exception){
         println(e.message)
     } finally {

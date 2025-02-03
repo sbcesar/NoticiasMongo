@@ -15,25 +15,29 @@ import org.example.utils.Menu
 
 fun main() {
 
+    // DataBase
     val databaseManager = DatabaseManager.getInstance()
     val database = databaseManager.connect()
 
+    // Usuario
     val usuarioRepository = UsuarioRepository(database)
     val usuarioService = UsuarioService(usuarioRepository)
     val usuarioController = UsuarioController(usuarioService)
 
+    // Noticia
     val noticiaRepository = NoticiaRepository(database)
     val noticiaService = NoticiaService(noticiaRepository)
     val noticiaController = NoticiaController(noticiaService)
 
+    // Comentario
     val comentarioRepository = ComentarioRepository(database)
     val comentarioService = ComentarioService(comentarioRepository)
     val comentarioController = ComentarioController(comentarioService)
 
-
+    // Menú
     val menu = Menu(usuarioController, noticiaController, comentarioController)
 
-
+    // Ejecucución
     try {
         menu.showAuthMenu()
     }catch (e: Exception){

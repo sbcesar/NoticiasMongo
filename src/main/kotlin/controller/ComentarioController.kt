@@ -3,6 +3,7 @@ package org.example.controller
 import org.example.entity.Comentario
 import org.example.entity.Noticia
 import org.example.services.ComentarioService
+import java.util.*
 
 class ComentarioController(private val comentarioService: ComentarioService) {
 
@@ -10,10 +11,16 @@ class ComentarioController(private val comentarioService: ComentarioService) {
         return comentarioService.listarComentariosPorNoticia(noticia)
     }
 
-    fun agregarComentario(comentario: Comentario): String {
+    fun agregarComentario(comentario: Comentario): Comentario {
         if (comentario.comentario.isBlank()) {
-            return "El contenido del comentario no puede estar vacío"
+            throw Exception("El contenido del comentario no puede estar vacío")
         }
+
+        val fechaActual = Date()
+        if (comentario.fecha.before(fechaActual)) {
+            throw Exception("La fecha del comentario no puede ser anterior a la fecha actual")
+        }
+
         return comentarioService.agregarComentario(comentario)
     }
 }

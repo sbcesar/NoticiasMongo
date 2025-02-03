@@ -1,43 +1,29 @@
 package org.example.services
 
-import org.bson.Document
 import org.example.entity.Direccion
 import org.example.entity.Estado
+import org.example.entity.Usuario
 import org.example.repositories.UsuarioRepository
 
 class UsuarioService(private val usuarioRepository: UsuarioRepository) {
 
-    fun register(email: String, nombre: String, nick: String, estado: Estado, direccion: Direccion, telefono: List<String>): String {
+    fun register(email: String, nombre: String, nick: String, estado: Estado, direccion: Direccion, telefono: List<String>): Usuario? {
 
         val usuarioExistente = usuarioRepository.findByEmailAndNick(email, nick)
 
         if (usuarioExistente != null) {
-            return "El usuario $nick con email ($email) ya está registrado"
+            return null
         }
 
-        val usuarioDocumento = Document()
-            .append("email", email)
-            .append("nombre", nombre)
-            .append("apodo", nick)
-            .append("estado", estado.toString())
-            .append("direccion", direccion)
-            .append("telefono", telefono)
+        val usuarioRegistrar = Usuario(email, nombre, nick, estado, direccion, telefono)
 
-        return try {
-            usuarioRepository.register(usuarioDocumento)
-            "Usuario registrado"
-        } catch (e: Exception) {
-            "Error al registrar el usuario: ${e.message}"
-        }
+        usuarioRepository.register(usuarioRegistrar)
+        return usuarioRegistrar
     }
 
-    fun login(email: String, nick: String): String {
+    fun login(email: String, nick: String): Usuario? {
         val nuevoUsuario = usuarioRepository.findByEmailAndNick(email, nick)
 
-        return if (nuevoUsuario != null) {
-            "El usuario se logueó exitosamente"
-        } else {
-            "El usuario $nick con email ($email) no está registrado"
-        }
+        return nuevoUsuario
     }
 }

@@ -1,5 +1,6 @@
 package org.example.repositories
 
+import com.mongodb.client.MongoDatabase
 import com.mongodb.client.model.Aggregates
 import com.mongodb.client.model.Filters
 import com.mongodb.client.model.Sorts
@@ -10,84 +11,69 @@ import org.example.entity.Direccion
 import org.example.entity.Estado
 import org.example.entity.Noticia
 import org.example.entity.Usuario
+import java.util.*
 
-class NoticiaRepository(private val databaseManager: DatabaseManager) {
+class NoticiaRepository(private val database: MongoDatabase) {
 
     private var collName = "noticias"
 
-    fun publicarNoticia(noticia: Noticia): String {
-        val noticiaColeccion = databaseManager.getCollection(collName)
+    fun publicarNoticia(noticia: Noticia): Noticia {
+        val noticiaColeccion = database.getCollection(collName, Noticia::class.java)
 
-        val noticiaDoc = Document()
-            .append("titulo", noticia.titulo)
-            .append("cuerpo", noticia.cuerpo)
-            .append("fecha_publicacion", noticia.fech_publicacion)
-            .append("autor_id", noticia.autor._id)
-            .append("tags", noticia.tag)
+        noticiaColeccion.insertOne(noticia)
 
-        noticiaColeccion.insertOne(noticiaDoc)
-        return "Noticia publicada exitosamente"
+        return noticia
     }
 
-    fun listarNoticiasPorUsuario(usuarioNick: String): List<String> {
-        val noticiaColeccion = databaseManager.getCollection(collName)
+    fun listarNoticiasPorUsuario(usuarioNick: String): List<Noticia> {
+        val noticiaColeccion = database.getCollection(collName, Noticia::class.java)
 
-        val pipeline = listOf(
-            Aggregates.lookup(
-                "usuarios",
-                "autor_id",
-                "_id",
-                "usuario_info"
-            ),
-            Aggregates.match(Filters.eq("usuario_info", usuarioNick))
-        )
+        val filtro = Filters.eq("autor", usuarioNick)
 
-        val resultado = noticiaColeccion.aggregate(pipeline)
+        val noticias = noticiaColeccion.find(filtro).toList()
 
-        val noticias = mutableListOf<String>()
-
-        resultado.forEach { document ->
-
-            noticias.add(document.toJson())
+        return noticias.ifEmpty {
+            emptyList()
         }
-        return noticias
     }
 
-    fun buscarNoticiasPorEtiquetas(etiquetas: List<String>): List<String> {
-        val noticiasCollection = databaseManager.getCollection(collName)
+    fun buscarNoticiasPorEtiquetas(etiquetas: List<String>): List<Noticia> {
+        val noticiasCollection = database.getCollection(collName, Noticia::class.java)
 
-        val pipeline = listOf(
-            Aggregates.match(Filters.`in`("tags", etiquetas))
-        )
+        val filtro = Filters.all("tag", etiquetas)
 
-        val resultado = noticiasCollection.aggregate(pipeline)
+        val noticias = noticiasCollection.find(filtro).toList()
 
-        val noticias = mutableListOf<String>()
-
-        resultado.forEach { document ->
-            noticias.add(document.toJson())
+        return noticias.ifEmpty {
+            emptyList()
         }
-
-        return noticias
     }
 
-    fun listarUltimasNoticias(): List<String> {
-        val noticiasCollection = databaseManager.getCollection(collName)
+    fun buscarNoticiaPorTitulo(titulo: String): List<Noticia> {
+        val noticiasCollection = database.getCollection(collName, Noticia::class.java)
 
-        val pipeline = listOf(
-            Aggregates.sort(Sorts.descending("fecha_publicacion")),
-            Aggregates.limit(10)
-        )
+        val filtro = Filters.eq("titulo", titulo)
 
-        val resultado = noticiasCollection.aggregate(pipeline)
+        val noticias = noticiasCollection.find(filtro).toList()
 
-        val noticias = mutableListOf<String>()
-
-        resultado.forEach { document ->
-            noticias.add(document.toJson())
+        return noticias.ifEmpty {
+            emptyList()
         }
+    }
 
-        return noticias
+    fun listarTodas(): List<Noticia> {
+        val noticiasCollection = database.getCollection(collName, Noticia::class.java)
+
+        return noticiasCollection.find().toList()
+    }
+
+    fun listarUltimasNoticias(): List<Noticia> {
+        val noticiasCollection = database.getCollection(collName, Noticia::class.java)
+
+        return noticiasCollection.find()
+            .sort(Sorts.descending("fecha_publicacion"))
+            .limit(10)
+            .toList()
     }
 
 }

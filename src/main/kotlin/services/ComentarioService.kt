@@ -7,10 +7,10 @@ import org.example.repositories.ComentarioRepository
 class ComentarioService(private val comentarioRepository: ComentarioRepository) {
 
     fun listarComentariosPorNoticia(noticia: Noticia): List<Comentario> {
-        return comentarioRepository.listarComentariosPorNoticia(noticia._id)
+        return comentarioRepository.listarComentariosPorNoticia(noticia)
     }
 
-    fun agregarComentario(comentario: Comentario): String {
+    fun agregarComentario(comentario: Comentario): Comentario {
         return comentarioRepository.agregarComentario(comentario)
     }
 }
